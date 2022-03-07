@@ -1,0 +1,74 @@
+/* You can add global styles to this file, and also import other style files */
+.outer-container{
+    background-image: linear-gradient(to bottom right, #f6f7f8, #0a55b8);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+
+}
+.box-container{
+    margin-left: auto;
+    margin-right: auto;
+    /* width: fit-content */
+    width: 67%;
+}
+.text1{
+    font-weight:500;
+    font-family: Arial, Helvetica, sans-serif;
+}
+.imgText{
+    display: grid;
+  grid-template-columns: 20% 80%;
+  grid-row-gap: 50px;
+  margin-top: 30px;
+  padding-left: 20px
+    
+}
+.required:after {
+    content:" *";
+    color: red;
+  }
+.info-container{
+    border: 1px solid;
+    padding: 30px 120px;
+    box-shadow: 0px 0px 20px #888888;
+    border-radius:5px;
+    background-color:#fcdea1;
+    margin-top:40px;
+}
+.text2{
+    text-align: center;
+    font-size: 18px;
+}
+.text3{
+    font-family:'Times New Roman', Times, serif;
+    font-weight:500;
+    font-size:18px;
+}
+.delete-btn{
+    background-color: red;
+    border: none;
+    border-radius: 5px;
+    width: 28px;
+    height: 32px;
+    text-align: center;
+    color:white;
+}
+.add-btn{
+    background-color: #0096FF;
+    border: none;
+    border-radius: 5px;
+    text-align: center;
+    color:white;
+    padding: 5px 10px;
+}
+.report-btn{
+    background-color:#2bb42b;
+    border: none;
+    border-radius: 5px;
+    text-align: center;
+    color:white;
+    padding: 5px 10px;
+    width: 40%;
+    margin-left: 30%;
+    margin-right: 30%;
+}

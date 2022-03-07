@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel = "stylesheet" href ="style.css" type="text/css"/>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.js"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>   
+        
+    <!-- for sheet report -->
+    <script type="text/javascript" src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js"></script>
+    <!-- for pdf export (this was blocking excel download so added it after excel cdn)-->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.2/pdfmake.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.2/vfs_fonts.js"></script>
+
+    <script src="maincnt.js"></script>
+    </head>
+    <body ng-app="app" ng-controller = "maincntrl" class = "outer-container">
+        <div class = "box-container">
+          <div class="imgText">            
+            <img src="Capture.JPG" alt="lti" style="float:left;border-radius: 5px;">
+            <h1 class="text1">Interview Assessment Portal</h1>          
+         </div>
+    
+          <div class= "info-container">
+              <br>
+          
+            <form>
+             
+              <div class="form-group row">
+                <label for="fname" class="col-sm-5 text3 required">Name of Candidate:</label>
+                <div class="col-sm-6">
+                  <input type="text" id="fname" name="fname" required class="form-control" ng-model="candidateName">
+                </div>
+              </div> 
+
+              <div class="form-group row">
+                <label for="start" class="col-sm-5 text3 required">Date of Interview:</label>
+                <div class="col-sm-6">
+                  <input type="date" id="start" name="trip-start" required class="form-control" ng-model="doi"
+                  ng-change="convertDate(doi)"><br>
+                </div>
+              </div>
+              
+              <div class="form-group row">
+                <label for="timeInt" class="col-sm-5 text3 required">Time of Interview:</label>
+                <div class="col-sm-3">
+                  <label for="timeInt" class="text3">From:</label>
+                  <input type="time" id="timeInt" class="form-control" required ng-model="fromTime" 
+                  ng-change="convertFromTime(fromTime)">
+                </div>
+                <div class="col-sm-3">
+                  <label for="timeIntto" class="text3">To:</label>
+                  <input type="time" id="timeIntto" class="form-control" required ng-model="toTime"
+                  ng-change="convertToTime(toTime)">
+                </div>
+              </div>
+    
+              <div class="form-group row">
+                <label for="modeInt" class="col-sm-5 text3 required">Mode of Interview:</label>
+                <div class="col-sm-6">
+                  <select class="form-select form-control" aria-label="Default select example" id="modeInt" ng-model="modeOfInt">
+                    <option value="" selected="selected">Choose</option>
+                    <option value="Telephonic">Telephonic</option>
+                    <option value="Personal">Personal</option>
+                    <option value="Video Conference">Video Conference</option>
+                  </select>
+                </div>
+              </div>
+    
+              <div class="form-group row">
+                <label for="skill" class="col-sm-5 text3 required">Skill:</label>
+                <div class="col-sm-6">
+                  <select class="form-select form-control" aria-label="Default select example" id="skill" 
+                  ng-model="skillset" ng-change="check(skillset)">
+                  <option value="" selected="selected">Choose</option>
+                    <option value="Java">Java</option>
+                    <option value="Guidewire">Guidewire</option>
+                    <option value="Duckcreek">Duckcreek</option>
+                    <option value="Majesco">Majesco</option>
+                  </select>
+                </div>
+              </div>
+            
+              <div ng-show="skillconditn">
+                <div class="form-group row" >
+                    <label for="priskill" class="col-sm-5 text3 required">Primary Skill:</label>
+                    <div class="col-sm-6">
+                    <select class="form-select form-control" ng-model= "primSkill" aria-label="Default select example" id="priskill">
+                      <option value="" selected="selected">Choose</option>
+                        <option value="Policy" ng-hide="secSkill=='Policy'">Policy</option>
+                        <option value="Claim" ng-hide="secSkill=='Claim'">Claim</option>
+                        <option value="Billing" ng-hide="secSkill=='Billing'">Billing</option>
+                        <option value="Digital" ng-hide="secSkill=='Digital'">Digital</option> 
+                    </select>
+                    </div>
+                </div>
+        
+                <div class="form-group row">
+                    <label for="secskill" class="col-sm-5 text3 required">Secondary Skill:</label>
+                    <div class="col-sm-6">
+                    <select class="form-select form-control" ng-model="secSkill" aria-label="Default select example" id="secskill">
+                      <option value="" selected="selected">Choose</option>
+                         <option value="Policy" ng-hide="primSkill=='Policy'">Policy</option>
+                        <option value="Claim" ng-hide="primSkill=='Claim'">Claim</option>
+                        <option value="Billing" ng-hide="primSkill=='Billing'">Billing</option>
+                        <option value="Digital" ng-hide="primSkill=='Digital'">Digital</option> 
+                    </select>
+                    </div>
+                </div>
+            </div>
+              <p class ="text2">Technical Competancies</p>
+              <div class="form-group row">
+                <label for="techProf" class="col-sm-5 text3 required">Technology Proficiency:</label>
+                <div class="col-sm-6">
+                  <select class="form-select form-control" aria-label="Default select example" id="techProf"
+                   ng-options="t for t in tech" ng-model="techprof" ng-change="prof(techprof)">
+                   <option value="" selected="selected">Choose</option>
+                </select>
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label for="domExp" class="col-sm-5 text3 required">Domain Expertise:</label>
+                <div class="col-sm-6">
+                  <select class="form-select form-control" aria-label="Default select example" id="domExp"
+                   ng-options="t for t in tech" ng-model="domainExp">
+                   <option value="" selected="selected">Choose</option>
+                </select>
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label for="design" class="col-sm-5 text3 required">Design Skill:</label>
+                <div class="col-sm-6">
+                  <select class="form-select form-control" aria-label="Default select example" id="design"
+                   ng-options="t for t in tech" ng-model="designSkill">
+                   <option value="" selected="selected">Choose</option>
+                </select>
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label for="estimatn" class="col-sm-5 text3 required">Estimation Skill:</label>
+                <div class="col-sm-6">
+                  <select class="form-select form-control" aria-label="Default select example" id="estimatn"
+                   ng-options="t for t in tech" ng-model="estimationSkill">
+                   <option value="" selected="selected">Choose</option>
+                </select>
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label for="testing" class="col-sm-5 text3 required">Testing Skill:</label>
+                <div class="col-sm-6">
+                  <select class="form-select form-control" aria-label="Default select example" id="testing"
+                   ng-options="t for t in tech" ng-model="testingSkill">
+                   <option value="" selected="selected">Choose</option>
+                </select>
+                </div>
+              </div>
+              
+              <div class="form-group row">
+                <label for="quality" class="col-sm-5 text3 required">Knowledge of Quality Processes:</label>
+                <div class="col-sm-6">
+                  <select class="form-select form-control" aria-label="Default select example" id="quality"
+                   ng-options="t for t in tech" ng-model="qualityProcess">
+                   <option value="" selected="selected">Choose</option>
+                </select>
+                </div>
+              </div>
+            
+                 
+              <div ng-repeat="technical in technicals track by $index" class="form-group row" >
+                <input type="text" ng-model="technical.name" class="col-sm-5 text3 required" required/>
+                <div class="col-sm-6">
+                  <select class="form-select form-control" aria-label="Default select example"
+                    ng-options="t for t in tech" ng-model="technical.rating">
+                    <option value="" selected="selected">Choose</option>
+                </select>
+                </div>
+                <button type = "button" ng-click="removeRow(techincal)" class="delete-btn">-</button>
+              </div>
+                
+              <button type = "button" ng-click="addSkill()" class="add-btn">Add fields</button>
+              
+
+
+              <p class = "text2">Behavioral Competancies</p>
+              <br><br>
+              <div class="form-group row">
+                <label for="personalEff" class="col-sm-5 text3 required">Personal Effectivess:</label>
+                <div class="col-sm-6">
+                  <select class="form-select form-control" id="personalEff"
+                  ng-model="personalEffectiveness" ng-options="p for p in behavior">
+                  <option value="" selected="selected">Choose</option>
+                </select>
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label for="commSkills" class="col-sm-5 text3 required">Communication Skills:</label>
+                <div class="col-sm-6">
+                  <select class="form-select form-control" aria-label="Default select example" id="commSkills"
+                   ng-model="communicationSkills" ng-options="p for p in behavior">
+                   <option value="" selected="selected">Choose</option>
+                </select>
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label for="work" class="col-sm-5 text3 required">Ability to work with others:</label>
+                <div class="col-sm-6">
+                  <select class="form-select form-control" aria-label="Default select example" id="work"
+                   ng-model="workWithOthers" ng-options="p for p in behavior">
+                   <option value="" selected="selected">Choose</option>
+                </select>
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label for="deal" class="col-sm-5 text3 required">Ability to deal with ambiguity:</label>
+                <div class="col-sm-6">
+                  <select class="form-select form-control" aria-label="Default select example" id="deal"
+                   ng-model="dealAmbiguity" ng-options="p for p in behavior">
+                   <option value="" selected="selected">Choose</option>
+                </select>
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label for="creative" class="col-sm-5 text3 required">Creativity:</label>
+                <div class="col-sm-6">
+                  <select class="form-select form-control" aria-label="Default select example" id="creative"
+                   ng-model="creativity" ng-options="p for p in behavior">
+                   <option value="" selected="selected">Choose</option>
+                </select>
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label for="initiative" class="col-sm-5 text3 required">Initiative:</label>
+                <div class="col-sm-6">
+                  <select class="form-select form-control" aria-label="Default select example" id="initiative"
+                   ng-model="initiativeSkill" ng-options="p for p in behavior">
+                   <option value="" selected="selected">Choose</option>
+                </select>
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label for="analytical" class="col-sm-5 text3 required">Analytical thinking:</label>
+                <div class="col-sm-6">
+                  <select class="form-select form-control" aria-label="Default select example" id="analytical"
+                   ng-model="analyticalThinking" ng-options="p for p in behavior">
+                   <option value="" selected="selected">Choose</option>
+                </select>
+                </div>
+              </div>
+
+              <br>
+              <p class = "text2">Final Review</p>
+              <br>
+              <div class="form-group row">
+                <label for="rating" class="col-sm-5 text3 required">Overall rating of candidate:</label>
+                <div class="col-sm-6">
+                  <select class="form-select form-control" aria-label="Default select example" id="rating"
+                  ng-model="overallRating">
+                    <option value="" selected="selected">Choose</option>
+                    <option value="Excellent">Excellent</option>
+                    <option value="Good">Good</option>
+                    <option value="Fair">Fair</option>
+                    <option value="Poor">Poor</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div class="form-group row">
+                <label for="feedback" class="col-sm-5 text3 required">Interview Feedback:</label>
+                <div class="col-sm-6">
+                  <select class="form-select form-control" aria-label="Default select example" id="feedbacl"
+                  ng-model="intFeedback">
+                    <option value="" selected="selected">Choose</option>
+                    <option value="Select">Select</option>
+                    <option value="Hold">Hold</option>
+                    <option value="Reject">Reject</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label for="role" class="col-sm-5 text3">Suggested Role:</label>
+                <div class="col-sm-6">
+                  <input type="text" id="role" name="suggRole" class="form-control" ng-model="suggRole">
+                </div>
+              </div> 
+
+              <div class="form-group row">
+                <label for="comments" class="col-sm-5 text3">Additional Comments:</label>
+                <div class="col-sm-6">
+                    <textarea class="form-control" id="comments" rows="4" placeholder="Write here....."
+                    ng-model="addComments"></textarea>
+                </div>
+              </div> 
+
+              <div class="form-group row">
+                <label for="intConducted" class="col-sm-5 text3 required">Interview conducted by:</label>
+                <div class="col-sm-6">
+                  <input type="text" id="intConducted" name="conductedBy" class="form-control" required
+                  ng-model="intConductedby">
+                </div>
+              </div> 
+              
+              <div class="form-group row">
+                <div class="form-check form-check-inline col-sm-5">
+                    <label class="form-check-label text3" for="inlineCheckbox1">Pdf Format</label>
+                    <input class="form-check-input" type="checkbox" id="inlineCheckbox1" value="pdfFormat" 
+                    ng-model="isPdf">               
+                  </div>
+                  <div class="form-check form-check-inline col-sm-6">
+                    <label class="form-check-label text3" for="inlineCheckbox2">Excel Format</label>
+                    <input class="form-check-input" type="checkbox" id="inlineCheckbox2" value="excelFormat"
+                    ng-model="isExcel">
+                  </div>
+              </div>
+            
+              <button class ="report-btn text3" ng-click="export()">Generate Report</button><br>
+            </form>
+          </div>
+        </div>
+        <table id = "printTable" style="display: none;">
+          <tr>
+            <td>Name</td>
+            <td> {{candidateName}}</td>
+          </tr>
+          <tr>
+            <td>Date</td>
+            <td>{{dateresult}} </td>
+          </tr>
+          <tr>
+            <td>Start time</td>
+            <td> {{from}} </td>
+          </tr>
+          <tr>
+            <td>End Time</td>
+            <td>{{to}} </td>
+          </tr>
+          <tr>
+            <td>Mode of interview</td>
+            <td> {{modeOfInt}}  </td>
+          </tr>
+          <tr>
+            <td>Skills</td>
+            <td>  {{skillset}}   </td>
+          </tr>
+          <tr>
+            <td>Primary skill</td>
+            <td>  {{primSkill}}  </td>
+          </tr>
+          <tr>
+            <td>Secondary skill</td>
+            <td>  {{secSkill}} </td>
+          </tr>
+          <tr>
+          </tr>
+          <tr>
+            <td>Technical Competencies</td>
+          </tr>
+          <tr>
+            <td></td><td></td>
+            <td>Expert</td>
+            <td>Confident</td>
+            <td>Trained</td>
+            <td>Satisfactory</td>
+            <td>Poor</td>
+          </tr>
+          <tr>
+            <td> </td>
+            <td>Technology Proficiency:</td>
+            <td>{{techprof == 'Expert'? '√': '-'}}</td>
+            <td>{{techprof == 'Confident'? '√': '-'}}</td>
+            <td>{{techprof == 'Trained'? '√': '-'}}</td>
+            <td>{{techprof == 'Satisfactory'? '√': '-'}}</td>
+            <td>{{techprof == 'Poor'? '√': '-'}}</td>
+          </tr>
+          <tr>
+            <td> </td>
+            <td>Domain Expertise:</td>
+            <td>{{domainExp == 'Expert'? '√': '-'}}</td>
+            <td>{{domainExp == 'Confident'? '√': '-'}}</td>
+            <td>{{domainExp == 'Trained'? '√': '-'}}</td>
+            <td>{{domainExp == 'Satisfactory'? '√': '-'}}</td>
+            <td>{{domainExp == 'Poor'? '√': '-'}}</td>
+          </tr>
+          <tr>
+            <td> </td>
+            <td>Design Skill:</td>
+            <td>{{designSkill == 'Expert'? '√': '-'}}</td>
+            <td>{{designSkill == 'Confident'? '√': '-'}}</td>
+            <td>{{designSkill == 'Trained'? '√': '-'}}</td>
+            <td>{{designSkill == 'Satisfactory'? '√': '-'}}</td>
+            <td>{{designSkill == 'Poor'? '√': '-'}}</td>
+          </tr>
+          <tr>
+            <td> </td>
+            <td>Estimation Skill:</td>
+            <td>{{estimationSkill == 'Expert'? '√': '-'}}</td>
+            <td>{{estimationSkill == 'Confident'? '√': '-'}}</td>
+            <td>{{estimationSkill == 'Trained'? '√': '-'}}</td>
+            <td>{{estimationSkill == 'Satisfactory'? '√': '-'}}</td>
+            <td>{{estimationSkill == 'Poor'? '√': '-'}}</td>
+          </tr>
+          <tr>
+            <td> </td>
+            <td>Testing Skill:</td>
+            <td>{{testingSkill == 'Expert'? '√': '-'}}</td>
+            <td>{{testingSkill == 'Confident'? '√': '-'}}</td>
+            <td>{{testingSkill == 'Trained'? '√': '-'}}</td>
+            <td>{{testingSkill == 'Satisfactory'? '√': '-'}}</td>
+            <td>{{testingSkill == 'Poor'? '√': '-'}}</td>
+          </tr>
+          <tr>
+            <td> </td>
+            <td>Knowledge of Quality Processes:</td>
+            <td>{{qualityProcess == 'Expert'? '√': '-'}}</td>
+            <td>{{qualityProcess == 'Confident'? '√': '-'}}</td>
+            <td>{{qualityProcess == 'Trained'? '√': '-'}}</td>
+            <td>{{qualityProcess == 'Satisfactory'? '√': '-'}}</td>
+            <td>{{qualityProcess == 'Poor'? '√': '-'}}</td>
+          </tr>
+          <tr ng-repeat="technical in technicals">
+            <td> </td>
+            <td>{{technical.name}}</td>
+            <td>{{technical.rating == 'Expert'? '√': '-'}}</td>
+            <td>{{technical.rating == 'Confident'? '√': '-'}}</td>
+            <td>{{technical.rating == 'Trained'? '√': '-'}}</td>
+            <td>{{technical.rating == 'Satisfactory'? '√': '-'}}</td>
+            <td>{{technical.rating == 'Poor'? '√': '-'}}</td>
+          </tr>
+          <tr>
+
+          </tr>
+
+          <tr>
+            <td>Behavioral Competencies</td>
+          </tr>
+          <tr>
+            <td></td><td></td>
+            <td>Confident</td>
+            <td>Satisfactory</td>
+            <td>Poor</td>
+          </tr>
+          <tr>
+            <td> </td>
+            <td>Personal Effectiveness:</td>
+            <td>{{personalEffectiveness == 'Confident'? '√': '-'}}</td>
+            <td>{{personalEffectiveness == 'Satisfactory'? '√': '-'}}</td>
+            <td>{{personalEffectiveness == 'Poor'? '√': '-'}}</td>
+          </tr>
+          <tr>
+            <td> </td>
+            <td>Communication Skills:</td>
+            <td>{{communicationSkills == 'Confident'? '√': '-'}}</td>
+            <td>{{communicationSkills == 'Satisfactory'? '√': '-'}}</td>
+            <td>{{communicationSkills == 'Poor'? '√': '-'}}</td>
+          </tr>
+          <tr>
+            <td> </td>
+            <td>Ability to work with others:</td>
+            <td>{{workWithOthers == 'Confident'? '√': '-'}}</td>
+            <td>{{workWithOthers == 'Satisfactory'? '√': '-'}}</td>
+            <td>{{workWithOthers == 'Poor'? '√': '-'}}</td>
+          </tr>
+          <tr>
+            <td> </td>
+            <td>Ability to deal with ambiguity:</td>
+            <td>{{dealAmbiguity == 'Confident'? '√': '-'}}</td>
+            <td>{{dealAmbiguity == 'Satisfactory'? '√': '-'}}</td>
+            <td>{{dealAmbiguity == 'Poor'? '√': '-'}}</td>
+          </tr>
+          <tr>
+            <td> </td>
+            <td>Creativity:</td>
+            <td>{{creativity == 'Confident'? '√': '-'}}</td>
+            <td>{{creativity == 'Satisfactory'? '√': '-'}}</td>
+            <td>{{creativity == 'Poor'? '√': '-'}}</td>
+          </tr>
+          <tr>
+            <td> </td>
+            <td>Initiative:</td>
+            <td>{{initiativeSkill == 'Confident'? '√': '-'}}</td>
+            <td>{{initiativeSkill == 'Satisfactory'? '√': '-'}}</td>
+            <td>{{initiativeSkill == 'Poor'? '√': '-'}}</td>
+          </tr>
+          <tr>
+            <td> </td>
+            <td>Analytical thinking:</td>
+            <td>{{analyticalThinking == 'Confident'? '√': '-'}}</td>
+            <td>{{analyticalThinking == 'Satisfactory'? '√': '-'}}</td>
+            <td>{{analyticalThinking == 'Poor'? '√': '-'}}</td>
+          </tr>
+
+          <tr>
+          </tr>
+          <tr>
+            <td><b>Final Review</b></td>
+          </tr>
+          <tr>
+            <td> </td>
+            <td>Overall rating of candidate </td>
+            <td>{{overallRating}} </td>
+          </tr>
+          <tr>
+            <td> </td>
+            <td>Interview Feedback </td>
+            <td>{{intFeedback}} </td>
+          </tr>
+          <tr>
+            <td> </td>
+            <td>Suggested Role </td>
+            <td>{{suggRole}} </td>
+          </tr>
+          <tr>
+            <td> </td>
+            <td>Additional comments </td>
+            <td>{{addComments}} </td>
+          </tr>
+          <tr>
+            <td> </td>
+            <td>Interview conducted by </td>
+            <td>{{intConductedby}} </td>
+          </tr>
+        </table>
+    </body> 
+</html>
